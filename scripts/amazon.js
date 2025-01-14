@@ -1,4 +1,4 @@
-import {cart} from '../data/cart.js';
+import {cart, addProductToCart} from '../data/cart.js';
 import {products} from '../data/products.js';
 
 let productsHTML = '';
@@ -58,26 +58,29 @@ products.forEach((product) => {
 
 console.log(productsHTML);
 
+function updateCartQuantity(){
+  let cartQuantity = 0;
 
-function isProductInCart(product, _cart = cart) {
-  for (const item of _cart) { 
-    console.log(item);
-    if (product.productId === item.productId) {
-      return true; 
-    }
-  }
-  return false; 
+    cart.forEach((cartItem) => {
+      cartQuantity += cartItem.quantity;
+    });
+
+    document.querySelector('.js-cart-quantity').innerHTML = cartQuantity;
 }
 
-function addProductToCart(product) {
-  if (isProductInCart(product, cart)) {
-    if(product.quantity < 10){
-      const existingProduct = cart.find(item => item.productId === product.productId); 
-      existingProduct.quantity += product.quantity; 
-    }
-  } else {
-    cart.push(product); 
+function showAddMarker(productId){
+  const addedMarker = document.querySelector(`.js-added-to-cart-${productId}`);
+
+  let timeoutHandle;
+
+  if(!addedMarker.classList.contains('added-to-cart-visible')){
+    addedMarker.classList.add('added-to-cart-visible');
   }
+  else{
+    clearTimeout(timeoutHandle);
+  }
+
+  timeoutHandle = setTimeout(() => {addedMarker.classList.remove('added-to-cart-visible')}, 2000);
 }
 
 document.querySelector('.js-products-grid').innerHTML = productsHTML;
@@ -92,26 +95,9 @@ document.querySelectorAll('.js-add-to-cart').forEach((button) => {
       quantity: productQuantity
     });
 
-    let cartQuantity = 0;
-
-    cart.forEach((item) => {
-      cartQuantity += item.quantity;
-    });
-
-    document.querySelector('.js-cart-quantity').innerHTML = cartQuantity;
-    const addedMarker = document.querySelector(`.js-added-to-cart-${productId}`);
-
-    let timeoutHandle;
-
-    if(!addedMarker.classList.contains('added-to-cart-visible')){
-      addedMarker.classList.add('added-to-cart-visible');
-    }
-    else{
-      clearTimeout(timeoutHandle);
-    }
-
-    timeoutHandle = setTimeout(() => {addedMarker.classList.remove('added-to-cart-visible')}, 2000);
+    updateCartQuantity();
     
+    showAddMarker(productId);
 
     console.log(cart);
   });
